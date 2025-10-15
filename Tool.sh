@@ -38,8 +38,6 @@ function iniciar_loop() {
     echo ""
 
     # Inicia o contador em um valor aleatório alto
-    # Note que o 'while true' fará com que o script fique em execução
-    # até que seja interrompido manualmente (Ctrl+C).
     CONTADOR=$((RANDOM % 1000 + 10000))
 
     # Loop infinito (while true)
@@ -55,10 +53,8 @@ function iniciar_loop() {
         # Pausa muito curta para o efeito de 'yes' controlado
         sleep 0.03 
     done
-
-    # Este echo -e "${COR_RESET}" nunca será alcançado devido ao loop 'while true'
-    # mas é bom mantê-lo para boas práticas, caso o loop seja alterado.
-    echo -e "${COR_RESET}" 
+    # Este echo -e "${COR_RESET}" nunca será alcançado, mas está aqui.
+    echo -e "${COR_RESET}"
 }
 
 # =======================================================
@@ -69,23 +65,28 @@ function iniciar_loop() {
 if [ $# -eq 0 ]; then
     exibir_banner
     echo -e "${COR_VERDE} Use: $0 banner ou $0 start${COR_RESET}"
-    # O script simplesmente termina aqui, sem 'exit'.
-    # Isso deve manter a sessão do Termux aberta.
-elif [ "$1" == "banner" ]; then
-    exibir_banner
-    # O script simplesmente termina aqui, sem 'exit'.
-elif [ "$1" == "start" ]; then
-    # Esta função entrará em loop infinito.
-    iniciar_loop
-    # Como iniciar_loop é um loop infinito, o script ficará preso aqui
-    # até ser interrompido com Ctrl+C.
-else
-    # Caso de argumento desconhecido
-    exibir_banner
-    echo -e "${COR_VERDE}ERRO: Comando '$1' desconhecido.${COR_RESET}"
-    echo -e "${COR_VERDE} Use: $0 banner ou $0 start${COR_RESET}"
-    # O script simplesmente termina aqui, sem 'exit'.
+    # ORIGINAL: exit 0  <- REMOVIDO!
 fi
 
-# Não há 'exit' no final. O script termina com sucesso
-# e devolve o controle ao shell, mantendo o Termux aberto.
+# Verifica o argumento passado
+case "$1" in
+    "banner")
+        # Se for 'banner', a função é executada e o script termina.
+        exibir_banner
+        ;;
+    "start")
+        # Se for 'start', a função entra em loop infinito.
+        iniciar_loop
+        ;;
+    *)
+        # Este bloco só é executado se houver argumentos E o primeiro não for 'banner' nem 'start'.
+        if [ $# -ne 0 ]; then # Garante que a mensagem de erro só aparece se houver argumento.
+            exibir_banner
+            echo -e "${COR_VERDE}ERRO: Comando '$1' desconhecido.${COR_RESET}"
+            echo -e "${COR_VERDE} Use: $0 banner ou $0 start${COR_RESET}"
+            # ORIGINAL: exit 1  <- REMOVIDO!
+        fi
+        ;;
+esac
+
+# O script termina aqui naturalmente.
